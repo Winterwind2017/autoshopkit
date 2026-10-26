@@ -87,6 +87,24 @@ def main(argv=None) -> int:
             problems.append("docs mention missing test: %s" % name)
     print("[ok] documented test scripts resolve")
 
+    catalog = os.path.join(ROOT, "recon", "catalog_commands.json")
+    if os.path.exists(catalog):
+        import json
+        commands = json.load(open(catalog, encoding="utf-8")).get("commands", {})
+        sys.path.insert(0, SRC)
+        from autoshopkit.app import CMD
+        for name in ("view_il", "view_ladder", "view_sfc"):
+            ident = CMD[name]
+            entry = commands.get(str(ident), {})
+            hint = entry.get("hint", "")
+            expected = {"view_il": "指令列表", "view_ladder": "梯形图", "view_sfc": "步进"}[name]
+            if expected not in hint:
+                problems.append("CMD[%s]=%d 的目录条目是 %r，和名字不符" % (name, ident, hint[:40]))
+        if not problems:
+            print("[ok] 编辑器切换命令 ID 与命令目录一致")
+    else:
+        print("[--] 没有本地命令目录，跳过 CMD ID 校验")
+
     leaked = []
     for path in walk_text_files(skip_self=True):
         text = open(path, encoding="utf-8", errors="replace").read()

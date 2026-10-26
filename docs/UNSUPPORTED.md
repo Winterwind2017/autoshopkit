@@ -14,7 +14,7 @@
 
 | 能力 | 原因 |
 | --- | --- |
-| 写 H5U 梯形图程序 | H5U 文档只有一个自绘 `AfxFrameOrView90u`，`查看→指令表` 无效，全进程 `Scintilla` 数为 0；写入通道只对 H3U 成立 |
+| 写 H5U 梯形图程序 | H5U 文档只有一个自绘 `AfxFrameOrView90u`；实测发 **32883（切换为指令列表编辑器）** 后 `Scintilla` 仍为 0、无新文档、`program_il()` 为空。程序语言只有 梯形图(LD)/结构化文本(LiteST)，IL 只是编译产物（见 `EDITORS.md`）；写入通道只对 H3U 成立 |
 | 从界面读 H5U 程序文本 | 同上；H5U 的读法是编译产物 `il_log.log`（`autoshopkit illog`） |
 | 用 UIA 点梯形图画布 | 画布没有子元素，只能盲点 + 键盘，风险不可接受 |
 | 网格数据整块导出 | 网格是 `VSFlexGrid8N`，无剪贴板导出；只能逐格读（点格 + F2） |

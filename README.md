@@ -98,14 +98,15 @@ python tests/e2e_programs.py       # 需要 AutoShop：9 步（三个程序读�
 src/autoshopkit/   app(UI 通道) / projectfile(格式) / hcp(容器) / ilparse / check / cli
 tests/             test_*.py 纯逻辑套件 + e2e_*.py 真机脚本
 tools/             一次性脚本与探针（probes/ 是逆向现场，不进发布面）
-docs/              RECON / HCP-FORMAT / LADDER / COMMANDS / IL / CHECK / VERIFY / UNSUPPORTED
+docs/              RECON / HCP-FORMAT / EDITORS / COMMANDS / IL / CHECK / VERIFY / UNSUPPORTED
 local/ recon/ sandbox/   仅本地：客户工程、逆向 dump、沙箱副本（.gitignore 挡住）
 ```
 
 ## 不做的事
 
 - **不做**在线监控读数与真正的 PLC 下载：前者要真机，后者要连机授权（见 `docs/UNSUPPORTED.md`）。
-- **不假装**能写 H5U 梯形图：H5U 文档没有指令表编辑器，梯形图是自绘画布；写入通道只对 H3U 成立。
+- **不假装**能写 H5U 梯形图：H5U 程序存 `.LD`，只提供 梯形图(LD) / 结构化文本(LiteST) 两种语言，
+  "指令列表"只是个视图（`32883` 在 H5U 上实测无效果）；写入通道只对 H3U 成立。见 `docs/EDITORS.md`。
 - **不发布**没跑过的能力：`docs/CAPABILITIES.md` 每条都标了证据来源。
 
 MIT © Winterwind2017

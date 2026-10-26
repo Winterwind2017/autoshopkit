@@ -60,9 +60,10 @@ CMD = {
     "find": 57641,
     "replace": 57641,
     # views
-    "view_il": 32867,        # 查看 -> 指令列表
-    "view_ladder": 32868,    # 查看 -> 梯形图
-    "view_sfc": 32869,       # 查看 -> 顺序功能图
+    # 查看 -> 切换编辑器（实测 ID；32867/32868/32869 是 SFC 的并行分支/汇合/梯形图块，不是视图）
+    "view_il": 32883,        # 切换为指令列表编辑器（仅 H3U 这类以 .IL 存程序的机型有效）
+    "view_ladder": 32884,    # 切换为梯形图编辑器
+    "view_sfc": 32885,       # 切换为步进状态图编辑器
     "view_symbols": 33367,   # 查看 -> 符号编址
     # plc / compile
     "compile": 32992,        # PLC -> 编译        (Ctrl+Alt+F7)
@@ -857,6 +858,14 @@ class AutoShop:
         return w.send(self.scintilla().hwnd, 2182)
 
     def view_il(self):
+        """Switch the active document to the instruction-list editor.
+
+        Measured on V4.11.0.5: an **H3U** program document already owns a ``Scintilla``, and
+        this command is the 梯形图⇄指令表 switch.  An **H5U** program is stored as ``.LD``
+        (a graph) and offers only 梯形图(LD) / 结构化文本(LiteST); issuing this command there
+        creates no editor and no document — the IL only exists as a compile product
+        (``il_log.log`` / ``Compile/*.compile``), so read it with :mod:`autoshopkit.projectfile`.
+        """
         w.post(self.frame, w.WM_COMMAND, CMD["view_il"])
         time.sleep(1.2)
         return self.scintilla()
