@@ -1,0 +1,159 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+
+public class PeRes {
+  byte[] b;
+  public long RvaToOff(uint rva) {
+    int pe = BitConverter.ToInt32(b, 0x3C);
+    int nsec = BitConverter.ToInt16(b, pe + 6);
+    int optSize = BitConverter.ToInt16(b, pe + 20);
+    int secOff = pe + 24 + optSize;
+    for (int i = 0; i < nsec; i++) {
+      int s = secOff + i * 40;
+      uint va = BitConverter.ToUInt32(b, s + 12);
+      uint vs = BitConverter.ToUInt32(b, s + 8);
+      uint raw = BitConverter.ToUInt32(b, s + 20);
+      if (rva >= va && rva < va + Math.Max(vs, 1)) return raw + (rva - va);
+    }
+    return -1;
+  }
+  public class Ent { public uint nameOrId; public bool isName; public string name; public List<Ent> kids = new List<Ent>(); public byte[] data; public uint dataRva; }
+  public Ent root = new Ent();
+  public PeRes(string path) { b = File.ReadAllBytes(path); }
+  public void Parse() {
+    int pe = BitConverter.ToInt32(b, 0x3C);
+    int optSize = BitConverter.ToInt16(b, pe + 20);
+    // data directory index 2 = resource
+    int ddOff = pe + 24 + (BitConverter.ToInt16(b, pe + 20) == 0 ? 0 : 0);
+    // optional header starts at pe+24; PE32: NumberOfRvaAndSizes at offset 92, dirs at 96; PE32+: 108/112
+    bool pe32plus = BitConverter.ToUInt16(b, pe + 24) == 0x20B;
+    int dirsBase = pe + 24 + (pe32plus ? 112 : 96);
+    uint resRva = BitConverter.ToUInt32(b, dirsBase + 2 * 8);
+    long resOff = RvaToOff(resRva);
+    root = ReadDir((int)resOff, (int)resOff, 0);
+  }
+  Ent ReadDir(int baseOff, int off, int depth) {
+    var e = new Ent();
+    ushort nNamed = BitConverter.ToUInt16(b, off + 12);
+    ushort nId = BitConverter.ToUInt16(b, off + 14);
+    for (int i = 0; i < nNamed + nId; i++) {
+      int p = off + 16 + i * 8;
+      uint nameField = BitConverter.ToUInt32(b, p);
+      uint offField = BitConverter.ToUInt32(b, p + 4);
+      var c = new Ent();
+      if ((nameField & 0x80000000) != 0) {
+        c.isName = true;
+        int so = baseOff + (int)(nameField & 0x7FFFFFFF);
+        int len = BitConverter.ToUInt16(b, so);
+        c.name = Encoding.Unicode.GetString(b, so + 2, len * 2);
+      } else c.nameOrId = nameField;
+      if ((offField & 0x80000000) != 0) {
+        c.kids = ReadDir(baseOff, baseOff + (int)(offField & 0x7FFFFFFF), depth + 1).kids;
+        // copy data fields if leaf
+        var sub = ReadDir(baseOff, baseOff + (int)(offField & 0x7FFFFFFF), depth + 1);
+        c.kids = sub.kids;
+        if (sub.data != null) { c.data = sub.data; c.dataRva = sub.dataRva; }
+        if (sub.isName) { }
+      } else {
+        int de = baseOff + (int)offField;
+        c.dataRva = BitConverter.ToUInt32(b, de);
+        uint sz = BitConverter.ToUInt32(b, de + 4);
+        long doff = RvaToOff(c.dataRva);
+        if (doff >= 0 && sz < 32 * 1024 * 1024) { c.data = new byte[sz]; Array.Copy(b, doff, c.data, 0, sz); }
+      }
+      e.kids.Add(c);
+    }
+    return e;
+  }
+
+  // ---------------- MENU template parser ----------------
+  public static string ParseMenu(byte[] d) {
+    var sb = new StringBuilder();
+    if (d == null || d.Length < 4) return "(empty)";
+    int ver = BitConverter.ToUInt16(d, 0);
+    bool ex = (ver & 1) != 0;
+    int off = BitConverter.ToUInt16(d, 2);
+    if (d.Length > 4 && BitConverter.ToUInt32(d, 0) == 0x0000020B) { } // rare header variant
+    int pos = 4 + off;
+    if (ex) ParseMenuEx(d, ref pos, sb, 0); else ParseMenuStd(d, ref pos, sb, 0, true);
+    return sb.ToString();
+  }
+  static void ParseMenuStd(byte[] d, ref int p, StringBuilder sb, int depth, bool bar) {
+    while (p + 4 <= d.Length) {
+      ushort flags = BitConverter.ToUInt16(d, p);
+      ushort id = BitConverter.ToUInt16(d, p + 2);
+      p += 4;
+      string text = ReadSz(d, ref p);
+      if ((flags & 0x10) != 0) { if (id == 0 && text.Length == 0) break; continue; }
+      sb.AppendLine(new string(' ', depth * 2) + "- id=" + id + " flags=0x" + flags.ToString("X4") + " '" + text + "'");
+      if ((flags & 0x01) != 0) ParseMenuStd(d, ref p, sb, depth + 1, false);
+      if (id == 0 && text.Length == 0) break;
+    }
+  }
+  static void ParseMenuEx(byte[] d, ref int p, StringBuilder sb, int depth) {
+    int guard = 0;
+    while (p + 14 <= d.Length && guard++ < 20000) {
+      ushort flags = BitConverter.ToUInt16(d, p);
+      ushort id = BitConverter.ToUInt16(d, p + 4);
+      ushort resInfo = BitConverter.ToUInt16(d, p + 6);
+      p += 14;
+      string text = ReadSzUnicode(d, ref p);
+      if ((flags & 0x10) != 0) continue; // popup/separator handling below
+      sb.AppendLine(new string(' ', depth * 2) + "- id=" + id + " flags=0x" + flags.ToString("X4") + " type=0x" + ((flags >> 4) & 0xF).ToString("X") + " '" + text + "'");
+      if ((flags & 0x10) != 0) ParseMenuEx(d, ref p, sb, depth + 1);
+    }
+  }
+  static string ReadSz(byte[] d, ref int p) {
+    var l = new List<byte>();
+    while (p < d.Length && d[p] != 0) { l.Add(d[p]); p++; }
+    p++;
+    return Encoding.Default.GetString(l.ToArray());
+  }
+  static string ReadSzUnicode(byte[] d, ref int p) {
+    var l = new List<byte>();
+    while (p + 1 < d.Length && !(d[p] == 0 && d[p + 1] == 0)) { l.Add(d[p]); l.Add(d[p + 1]); p += 2; }
+    p += 2;
+    return Encoding.Unicode.GetString(l.ToArray());
+  }
+
+  // ---------------- DIALOG parser ----------------
+  public static string ParseDialog(byte[] d) {
+    var sb = new StringBuilder();
+    if (d == null || d.Length < 18) return "(empty)";
+    bool ex = BitConverter.ToUInt16(d, 0) == 1;
+    int p = 0;
+    ushort ver = BitConverter.ToUInt16(d, p); p += 2;
+    uint help = BitConverter.ToUInt32(d, p); p += 4;
+    uint exStyle = BitConverter.ToUInt32(d, p); p += 4;
+    uint style = BitConverter.ToUInt32(d, p); p += 4;
+    ushort nItems = BitConverter.ToUInt16(d, p); p += 2;
+    short x = BitConverter.ToInt16(d, p); p += 2;
+    short y = BitConverter.ToInt16(d, p); p += 2;
+    short cx = BitConverter.ToInt16(d, p); p += 2;
+    short cy = BitConverter.ToInt16(d, p); p += 2;
+    string menu = ex ? ReadSzUnicode(d, ref p) : ReadSz(d, ref p);
+    string cls = ex ? ReadSzUnicode(d, ref p) : ReadSz(d, ref p);
+    string title = ex ? ReadSzUnicode(d, ref p) : ReadSz(d, ref p);
+    if ((style & 0x40) != 0) { short pt = BitConverter.ToInt16(d, p); p += 2; }
+    sb.AppendLine(string.Format("dialog style=0x{0:X8} ex=0x{1:X8} title='{2}' pos={3},{4} size={5}x{6} items={7}", style, exStyle, title, x, y, cx, cy, nItems));
+    for (int i = 0; i < nItems && p + 18 <= d.Length; i++) {
+      p = (p + 3) & ~3;
+      uint h = BitConverter.ToUInt32(d, p); p += 4;
+      uint es = BitConverter.ToUInt32(d, p); p += 4;
+      uint st = BitConverter.ToUInt32(d, p); p += 4;
+      short ix = BitConverter.ToInt16(d, p); p += 2;
+      short iy = BitConverter.ToInt16(d, p); p += 2;
+      short icx = BitConverter.ToInt16(d, p); p += 2;
+      short icy = BitConverter.ToInt16(d, p); p += 2;
+      uint id = ex ? BitConverter.ToUInt32(d, p) : BitConverter.ToUInt16(d, p); p += ex ? 4 : 2;
+      string c = ex ? ReadSzUnicode(d, ref p) : ReadSz(d, ref p);
+      string t = ex ? ReadSzUnicode(d, ref p) : ReadSz(d, ref p);
+      if (ex && (st & 0x40) != 0) { int extra = BitConverter.ToUInt16(d, p); p += 2 + extra; }
+      if (ex) p = (p + 3) & ~3;
+      sb.AppendLine(string.Format("  ctrl id={0} class='{1}' text='{2}' rect={3},{4},{5},{6} style=0x{7:X8}", id, c, t, ix, iy, icx, icy, st));
+    }
+    return sb.ToString();
+  }
+}

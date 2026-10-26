@@ -1,0 +1,218 @@
+[
+ {
+  "name": "contact + coil",
+  "source": "LD X0\nOUT Y0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(31)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nOUT   Y0\n\u0000"
+ },
+ {
+  "name": "series",
+  "source": "LD X0\nAND X1\nOUT Y0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(32)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nAND   X1\nOUT   Y0\n\u0000"
+ },
+ {
+  "name": "parallel",
+  "source": "LD X0\nOR X1\nOUT Y0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(32)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nOR   X1\nOUT   Y0\n\u0000"
+ },
+ {
+  "name": "timer",
+  "source": "LD X0\nOUT T0 K10\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(33)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nOUT   T0 K10\n\u0000"
+ },
+ {
+  "name": "counter",
+  "source": "LD X0\nOUT C0 K5\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(33)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nOUT   C0 K5\n\u0000"
+ },
+ {
+  "name": "move",
+  "source": "LD X0\nMOV K1 D0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(35)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nMOV   K1 D0\n\u0000"
+ },
+ {
+  "name": "double move",
+  "source": "LD X0\nDMOV K10 D0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(39)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nDMOV   K10 D0\n\u0000"
+ },
+ {
+  "name": "set / reset",
+  "source": "LD X0\nSET Y0\nLD X1\nRST Y0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(33)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nSET   Y0\nLD   X1\nRST   Y0\n\u0000"
+ },
+ {
+  "name": "compare contact",
+  "source": "LD> D0 K5\nOUT Y1\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(35)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD>   D0 K5\nOUT   Y1\n\u0000"
+ },
+ {
+  "name": "stack (MPS/MRD/MPP)",
+  "source": "LD X0\nMPS\nAND X1\nOUT Y0\nMRD\nAND X2\nOUT Y1\nMPP\nOUT Y2\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(38)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nMPS\nAND   X1\nOUT   Y0\nMRD\nAND   X2\nOUT   Y1\nMPP\nOUT   Y2\n\u0000"
+ },
+ {
+  "name": "pulse",
+  "source": "LD X0\nPLS M0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(32)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nPLS   M0\n\u0000"
+ },
+ {
+  "name": "zone reset",
+  "source": "LD X0\nZRST M0 M10\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(35)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nZRST   M0 M10\n\u0000"
+ },
+ {
+  "name": "master control",
+  "source": "LD X0\nMC N0 M100\nLD X1\nOUT Y0\nMCR N0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(37)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nMC   N0 M100\nLD   X1\nOUT   Y0\nMCR   N0\n\u0000"
+ },
+ {
+  "name": "for / next",
+  "source": "LD X0\nFOR K5\nINC D0\nNEXT\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(37)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nFOR   K5\nINC   D0\nNEXT\n\u0000"
+ },
+ {
+  "name": "jump (CJ + LBL)",
+  "source": "LD X0\nCJ P0\nLD X1\nOUT Y0\nLBL P0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(36)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nCJ   P0\nLD   X1\nOUT   Y0\nLBL   P0\n\u0000"
+ },
+ {
+  "name": "label only (LBL)",
+  "source": "LD X0\nOUT Y0\nLBL P1\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(32)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nOUT   Y0\nLBL   P1\n\u0000"
+ },
+ {
+  "name": "jump to end (CJEND)",
+  "source": "LD X0\nCJEND\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(33)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nCJEND\n\u0000"
+ },
+ {
+  "name": "call subprogram",
+  "source": "LD X0\nCALL SBR_001\nLD X1\nOUT Y0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(35)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nCALL   SBR_001\nLD   X1\nOUT   Y0\n\u0000"
+ },
+ {
+  "name": "sequential (STL)",
+  "source": "STL S0\nLD X0\nSET S1\nRET\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(34)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "STL   S0\nLD   X0\nSET   S1\nRET\n\u0000"
+ },
+ {
+  "name": "compare block (CMP)",
+  "source": "LD X0\nCMP K1 K5 M10\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(37)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nCMP   K1 K5 M10\n\u0000"
+ },
+ {
+  "name": "zone compare (ZCP)",
+  "source": "LD X0\nZCP K1 K5 D0 M10\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(39)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nZCP   K1 K5 D0 M10\n\u0000"
+ },
+ {
+  "name": "exchange (XCH)",
+  "source": "LD X0\nXCH D0 D1\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(35)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nXCH   D0 D1\n\u0000"
+ },
+ {
+  "name": "byte swap (SWAP)",
+  "source": "LD X0\nSWAP D0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(33)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nSWAP   D0\n\u0000"
+ },
+ {
+  "name": "negate (NEG)",
+  "source": "LD X0\nNEG D0\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(33)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nNEG   D0\n\u0000"
+ },
+ {
+  "name": "block move (BMOV)",
+  "source": "LD X0\nBMOV D0 D10 K5\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(37)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nBMOV   D0 D10 K5\n\u0000"
+ },
+ {
+  "name": "two networks",
+  "source": "LD X0\nOUT Y0\nLD X1\nOUT Y1\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(33)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "LD   X0\nOUT   Y0\nLD   X1\nOUT   Y1\n\u0000"
+ },
+ {
+  "name": "networks + comments",
+  "source": "//net one\nLD X0\nOUT Y0\n//net two\nLD X1\nOUT Y1\n",
+  "compiles": true,
+  "summary": "统计 - (0)错误,(33)步占用/(63500)总容量",
+  "errors": [],
+  "readback": "//net one\nLD   X0\nOUT   Y0\n//net two\nLD   X1\nOUT   Y1\n\u0000"
+ }
+]

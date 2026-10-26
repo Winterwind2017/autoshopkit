@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# local only: customer projects, reverse-engineering dumps, sandbox copies
+local/
+tools/probes/
+recon/
+sandbox/
+*.hcp
+*.hcpp
+*.LD
+*.gdt
+*.mon
+*.crs
+*.log
